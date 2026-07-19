@@ -8,8 +8,15 @@ export default function NotFound() {
       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent">
         <FileQuestion className="h-7 w-7 text-accent-foreground" />
       </div>
-      <h1 className="font-serif text-2xl font-medium">Page not found</h1>
-      <p className="max-w-sm text-muted-foreground">The page you're looking for doesn't exist or may have been moved.</p>
+
+      <h1 className="font-serif text-2xl font-medium">
+        Page not found
+      </h1>
+
+      <p className="max-w-sm text-muted-foreground">
+        The page you&apos;re looking for doesn&apos;t exist or may have been moved.
+      </p>
+
       <Link href="/dashboard">
         <Button>Back to dashboard</Button>
       </Link>
