@@ -23,13 +23,21 @@ export function BuilderPage({ formId }: { formId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formId]);
 
-  // Auto-select the first question the first time a form loads with none selected.
+  // Auto-select the first question when the form loads.
   useEffect(() => {
     if (form && form.questions.length > 0 && !selectedQuestionId) {
-      selectQuestion([...form.questions].sort((a, b) => a.order - b.order)[0].id);
+      const sortedQuestions = [...form.questions].sort(
+        (a, b) => a.order - b.order
+      );
+
+      const firstQuestion = sortedQuestions[0];
+
+      if (firstQuestion) {
+        selectQuestion(firstQuestion.id);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form?.id, form?.questions.length]);
+  }, [form?.id, form?.questions.length, selectedQuestionId]);
 
   if (isLoading) {
     return (
@@ -54,27 +62,37 @@ export function BuilderPage({ formId }: { formId: string }) {
       <div className="flex h-screen flex-col items-center justify-center gap-3 text-center">
         <AlertCircle className="h-8 w-8 text-muted-foreground" />
         <h1 className="text-xl font-bold">Form not found</h1>
-        <Link href="/dashboard" className="text-sm font-semibold text-primary hover:underline">
+        <Link
+          href="/dashboard"
+          className="text-sm font-semibold text-primary hover:underline"
+        >
           Back to dashboard
         </Link>
       </div>
     );
   }
 
-  const selectedQuestion = form.questions.find((q) => q.id === selectedQuestionId) || null;
+  const selectedQuestion =
+    form.questions.find((q) => q.id === selectedQuestionId) ?? null;
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <BuilderTopbar form={form} />
       <div className="flex flex-1 overflow-hidden">
         <QuestionSidebar form={form} />
+
         <main className="no-scrollbar flex-1 overflow-y-auto">
           {selectedQuestion ? (
-            <QuestionEditorPanel key={selectedQuestion.id} question={selectedQuestion} formId={form.id} />
+            <QuestionEditorPanel
+              key={selectedQuestion.id}
+              question={selectedQuestion}
+              formId={form.id}
+            />
           ) : (
             <EmptyBuilderState hasQuestions={form.questions.length > 0} />
           )}
         </main>
+
         <LivePreviewPanel form={form} />
       </div>
     </div>
