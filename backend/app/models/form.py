@@ -16,24 +16,70 @@ class Form(Base):
     __tablename__ = "forms"
 
     id = Column(String(36), primary_key=True, default=new_uuid)
+
     # Nullable so any forms created before auth was added keep working;
     # every form created going forward is always assigned an owner.
-    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
-    title = Column(String(255), nullable=False, default="Untitled Form")
-    description = Column(String(1000), nullable=True, default="")
-    status = Column(SAEnum(FormStatus), nullable=False, default=FormStatus.DRAFT)
+    user_id = Column(
+        String(36),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
 
-    created_at = Column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
-    published_at = Column(DateTime(timezone=True), nullable=True)
+    title = Column(
+        String(255),
+        nullable=False,
+        default="Untitled Form",
+    )
 
-    owner = relationship("User", back_populates="forms")
+    description = Column(
+        String(1000),
+        nullable=True,
+        default="",
+    )
+
+    # Store enum VALUES ("draft", "published") instead of enum NAMES
+    # ("DRAFT", "PUBLISHED") so PostgreSQL enum matches correctly.
+    status = Column(
+        SAEnum(
+            FormStatus,
+            values_callable=lambda enum_cls: [e.value for e in enum_cls],
+            name="formstatus",
+        ),
+        nullable=False,
+        default=FormStatus.DRAFT,
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        nullable=False,
+    )
+
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        onupdate=_utcnow,
+        nullable=False,
+    )
+
+    published_at = Column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    owner = relationship(
+        "User",
+        back_populates="forms",
+    )
+
     questions = relationship(
         "Question",
         back_populates="form",
         cascade="all, delete-orphan",
         order_by="Question.order",
     )
+
     responses = relationship(
         "Response",
         back_populates="form",
